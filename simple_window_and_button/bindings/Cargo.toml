@@ -1,0 +1,11 @@
+[package]
+name = "bindings"
+version = "0.1.0"
+authors = ["Marcus Belfort<marvinbelfort@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+windows = "*"
+
+[build-dependencies]
+windows = "*"
