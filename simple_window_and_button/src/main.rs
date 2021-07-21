@@ -1,7 +1,7 @@
 use bindings::{
-    Windows::Win32::Foundation::*,
-    Windows::Win32::Graphics::Gdi::*,
-    Windows::Win32::System::LibraryLoader::*,
+    Windows::Win32::Foundation::{HWND, PSTR, HINSTANCE, WPARAM, LPARAM, LRESULT},
+    Windows::Win32::Graphics::Gdi::HBRUSH,
+    Windows::Win32::System::LibraryLoader::GetModuleHandleA,
     Windows::Win32::UI::WindowsAndMessaging::{
         CreateWindowExA, DefWindowProcA, DestroyWindow, DispatchMessageA, GetMessageA,
         GetWindowLongPtrA, PostQuitMessage, RegisterClassA, TranslateMessage, CS_HREDRAW,
@@ -10,14 +10,22 @@ use bindings::{
         WS_OVERLAPPEDWINDOW, WS_TABSTOP, WS_VISIBLE,
     },
 };
-use std::ffi::CString;
+use std::ffi::{CString};
+
+fn pstr() -> PSTR{
+    let class_name = CString::new("BUTTON").expect("BUTTON");
+    PSTR(class_name.as_ptr() as *mut u8)
+}
 
 fn create_button(pwnd: HWND, control_id: isize) {
-    let class_name = CString::new("BUTTON").expect("BUTTON");
-    let pstr_class_name: PSTR = PSTR(class_name.as_ptr() as *mut _);
 
-    let wnd_name = CString::new("Press Me!").expect("BUTTON");
-    let pstr_wnd_name: PSTR = PSTR(wnd_name.as_ptr() as *mut _);
+//    let pstr_class_name: PSTR= pstr();
+   let class_name = CString::new("BUTTON").expect("BUTTON");
+   let pstr_class_name= PSTR(class_name.as_ptr() as *mut u8);
+   println!("pstr_class_name = {:?}", pstr_class_name);
+
+    let wnd_name = CString::new("Click Here!").expect("BUTTON");
+    let pstr_wnd_name = PSTR(wnd_name.as_ptr() as *mut _);
 
     let control_id_as_hmenu = HMENU(control_id);
 
@@ -42,7 +50,7 @@ fn create_button(pwnd: HWND, control_id: isize) {
 extern "system" fn window_proc(hwnd: HWND, msg: u32, w_param: WPARAM, l_param: LPARAM) -> LRESULT {
     match msg {
         WM_CREATE => {
-            create_button(hwnd, 101);
+            let _a =  create_button(hwnd, 101);
             LRESULT(0)
         }
         WM_DESTROY => {
@@ -61,7 +69,7 @@ extern "system" fn window_proc(hwnd: HWND, msg: u32, w_param: WPARAM, l_param: L
             let loword = w_param.0 & 0xff;
             match loword {
                 101 => {
-                    println!("Button was pressed!");
+                    println!("Clicked!!");
                     LRESULT(0)
                 }
 
@@ -89,8 +97,7 @@ fn main() -> windows::Result<()> {
             ..WNDCLASSA::default()
         };
 
-        let result = RegisterClassA(&wc);
-        println!("register class = {:#X}", result);
+        RegisterClassA(&wc);
 
         let _h_wnd = CreateWindowExA(
             WS_EX_OVERLAPPEDWINDOW,
